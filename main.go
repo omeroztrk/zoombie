@@ -15,7 +15,13 @@ func main() {
 	hless_p := flag.Bool("hl", true, "Headless")
 	name_p := flag.String("n", "", "Name of the bot participant")
 	zoom_link_p := flag.String("zl", "", "Zoom invite link")
+	verbosity_p := flag.Int("v", 1, "Verbosity 1-3")
+
 	flag.Parse()
+
+	if *verbosity_p > 1 {
+		log.Println("Verbosity: ", *verbosity_p)
+	}
 
 	invite := *zoom_link_p
 	name := *name_p
@@ -34,39 +40,62 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not launch browser: %v", err)
 	}
+	if *verbosity_p > 1 {
+		log.Println("Chromium launched")
+	}
+
 	page, err := browser.NewPage()
 	if err != nil {
 		log.Fatalf("could not create page: %v", err)
 	}
 	page.Context().GrantPermissions([]string{`microphone`, `camera`})
+	if *verbosity_p > 1 {
+		log.Println("Permissions granted")
+	}
+
 	if _, err = page.Goto(meetLink); err != nil {
 		log.Fatalf("could not goto: %v", err)
 	}
+	if *verbosity_p > 1 {
+		log.Println("Went to: ", meetLink)
+	}
 
 	cookieBox, _ := page.WaitForSelector(`[aria-label="Privacy"]`)
-	fmt.Println("Cookie thing popped up")
+	if *verbosity_p > 1 {
+		log.Println("Cookie thing popped up")
+	}
+
 	if closeCookie, err := cookieBox.QuerySelector(`[aria-label="Close"]`); err == nil {
 		closeCookie.Click()
+	}
+	if *verbosity_p > 1 {
+		log.Println("Cookie thing closed")
 	}
 
 	nameFiled, _ := page.QuerySelector(`[placeholder="Your Name"]`)
 	nameFiled.Fill(name)
+	if *verbosity_p > 1 {
+		log.Println("Name entered")
+	}
 
 	joinBtn, _ := page.QuerySelector(`#joinBtn`)
 	joinBtn.Click()
+	if *verbosity_p > 1 {
+		log.Println("Join button clicked")
+	}
 
 	page.WaitForSelector(`[aria-label="open the chat pane"]`)
 	page.Click(`[aria-label="open the chat pane"]`)
+	log.Println("Joined")
 
-	if mute, err := page.QuerySelector(`button:has-text("Mute")`); err == nil && mute != nil {
-		mute.Click()
-	}
+	// if mute, err := page.QuerySelector(`button:has-text("Mute")`); err == nil && mute != nil {
+	// 	mute.Click()
+	// }
 
-	if svideo, err := page.QuerySelector(`button:has-text("Stop Video")`); err == nil && svideo != nil {
-		svideo.Click()
-	}
+	// if svideo, err := page.QuerySelector(`button:has-text("Stop Video")`); err == nil && svideo != nil {
+	// 	svideo.Click()
+	// } Currently that shit does not work
 
-	fmt.Println("Joined")
 	for {
 		var line string
 		reader := bufio.NewReader(os.Stdin)
