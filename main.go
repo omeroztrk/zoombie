@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/playwright-community/playwright-go"
 )
@@ -88,13 +89,21 @@ func main() {
 	page.Click(`[aria-label="open the chat pane"]`)
 	log.Println("Joined")
 
-	// if mute, err := page.QuerySelector(`button:has-text("Mute")`); err == nil && mute != nil {
-	// 	mute.Click()
-	// }
+	// delayed screenshot
+	if *verbosity_p > 2 {
+		go func() { // since that, rest can continue
+			time.Sleep(20 * time.Second) //lets screenshot after 20 secs
+			log.Println("Screenshotting after login")
+			path := "Delayed After Login.png"
+			fullPage := true
 
-	// if svideo, err := page.QuerySelector(`button:has-text("Stop Video")`); err == nil && svideo != nil {
-	// 	svideo.Click()
-	// } Currently that shit does not work
+			page.Screenshot(playwright.PageScreenshotOptions{
+				Path:     &path,
+				FullPage: &fullPage,
+			})
+		}()
+	}
+	log.Println("Continuing")
 
 	for {
 		var line string
