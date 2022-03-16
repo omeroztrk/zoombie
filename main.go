@@ -88,13 +88,13 @@ func main() {
 
 	if agreeButton, err := page.QuerySelector(`#wc_agree1`); err == nil && agreeButton != nil {
 		agreeButton.Click()
+		log.Println("Agree1 clicked")
 	}
 
-	go func() {
-		time.Sleep(5 * time.Second)
-		fmt.Println(page.URL())
-		fmt.Println(page.Content())
-	}()
+	if agreeButton, err := page.QuerySelector(`#wc_agree2`); err == nil && agreeButton != nil {
+		agreeButton.Click()
+		log.Println("Agree2 clicked")
+	}
 
 	page.WaitForSelector(`[aria-label="open the chat pane"]`)
 	page.Click(`[aria-label="open the chat pane"]`)
