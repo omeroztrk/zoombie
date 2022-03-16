@@ -69,6 +69,7 @@ func main() {
 	if closeCookie, err := cookieBox.QuerySelector(`[aria-label="Close"]`); err == nil {
 		closeCookie.Click()
 	}
+
 	if *verbosity_p > 1 {
 		log.Println("Cookie thing closed")
 	}
@@ -84,6 +85,16 @@ func main() {
 	if *verbosity_p > 1 {
 		log.Println("Join button clicked")
 	}
+
+	if agreeButton, err := page.QuerySelector(`#wc_agree1`); err == nil && agreeButton != nil {
+		agreeButton.Click()
+	}
+
+	go func() {
+		time.Sleep(5 * time.Second)
+		fmt.Println(page.URL())
+		fmt.Println(page.Content())
+	}()
 
 	page.WaitForSelector(`[aria-label="open the chat pane"]`)
 	page.Click(`[aria-label="open the chat pane"]`)
